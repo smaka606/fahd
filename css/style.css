@@ -1634,9 +1634,17 @@ p {
 }
 
 .cart-button-container {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 50px;
+    width: 150px;
+}
+
+.add-to-cart-btn, .quantity-controls {
+    position: absolute;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .add-to-cart-btn {
@@ -1649,7 +1657,24 @@ p {
     height: 50px;
     font-size: var(--font-size-lg);
     cursor: pointer;
-    transition: all var(--transition-base);
+}
+
+.cart-button-container.controls-visible .add-to-cart-btn {
+    opacity: 0;
+    transform: scale(0.5);
+    pointer-events: none;
+}
+
+.quantity-controls {
+    opacity: 0;
+    transform: scale(0.5);
+    pointer-events: none;
+}
+
+.cart-button-container.controls-visible .quantity-controls {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
 }
 
 .add-to-cart-btn:hover {
