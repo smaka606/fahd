@@ -766,7 +766,7 @@ function createProductCard(product) {
                     <button class="add-to-cart-btn" data-product-id="${product.id}">
                         <i class="fas fa-shopping-cart"></i>
                     </button>
-                    <div class="quantity-controls" style="display: none;">
+                    <div class="quantity-controls">
                         <button class="quantity-btn decrease-btn" data-product-id="${product.id}">–</button>
                         <span class="quantity">1</span>
                         <button class="quantity-btn increase-btn" data-product-id="${product.id}">+</button>
@@ -817,17 +817,14 @@ class ProductsFilter {
         const cart = window.cartManager.getCart();
         const quantity = cart[productId];
 
-        const addToCartBtn = card.querySelector('.add-to-cart-btn');
-        const quantityControls = card.querySelector('.quantity-controls');
+        const cartButtonContainer = card.querySelector('.cart-button-container');
         const quantitySpan = card.querySelector('.quantity');
 
         if (quantity) {
-            addToCartBtn.style.display = 'none';
-            quantityControls.style.display = 'flex';
+            cartButtonContainer.classList.add('controls-visible');
             if(quantitySpan) quantitySpan.textContent = quantity;
         } else {
-            addToCartBtn.style.display = 'block';
-            quantityControls.style.display = 'none';
+            cartButtonContainer.classList.remove('controls-visible');
             if (quantitySpan) quantitySpan.textContent = '1';
         }
     }
