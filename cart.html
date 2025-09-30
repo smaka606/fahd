@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منتجاتنا - الفهد لتجارة وتوريد المواد الغذائية</title>
-    <meta name="description" content="تصفح مجموعتنا الواسعة من أجود أنواع الأسماك والمأكولات البحرية الطازجة - أسماك، جمبري، كابوريا، كاليماري وأكثر">
-    <meta name="keywords" content="منتجات بحرية، أسماك طازجة، جمبري، كابوريا، كاليماري، الفهد">
-    
+    <title>سلة المشتريات - الفهد لتجارة وتوريد المواد الغذائية</title>
+    <meta name="description" content="عرض وإدارة المنتجات في سلة المشتريات الخاصة بك.">
+    <meta name="keywords" content="سلة المشتريات, طلبات, الفهد">
+
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="منتجاتنا - الفهد لتجارة وتوريد المواد الغذائية">
-    <meta property="og:description" content="تصفح مجموعتنا الواسعة من أجود أنواع المأكولات البحرية الطازجة">
-    
+    <meta property="og:title" content="سلة المشتريات - الفهد لتجارة وتوريد المواد الغذائية">
+    <meta property="og:description" content="عرض وإدارة المنتجات في سلة المشتريات الخاصة بك.">
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,24 +33,20 @@
                 <img src="images/about/logo.png" alt="الفهد لتجارة وتوريد المواد الغذائية" class="logo-img">
                 <span class="logo-text"> الفهد لتجارة وتوريد المواد الغذائية </span>
             </div>
-            
+
             <div class="nav-menu" id="nav-menu">
                 <a href="index.html" class="nav-link">الرئيسية</a>
-                <a href="products.html" class="nav-link active">منتجاتنا</a>
+                <a href="products.html" class="nav-link">منتجاتنا</a>
                 <a href="about.html" class="nav-link">من نحن</a>
                 <a href="contact.html" class="nav-link">اتصل بنا</a>
             </div>
 
             <div class="nav-actions">
-                <a href="cart.html" class="nav-action-btn cart-btn" aria-label="Cart">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-counter">0</span>
-                </a>
                 <a href="https://wa.me/201143343338" class="nav-action-btn whatsapp-btn" target="_blank" aria-label="WhatsApp">
                     <i class="fa-brands fa-whatsapp"></i>
                 </a>
             </div>
-            
+
             <div class="nav-toggle" id="nav-toggle">
                 <span></span>
                 <span></span>
@@ -63,101 +59,63 @@
     <section class="page-header">
         <div class="container">
             <div class="header-content">
-                <h1 class="page-title">منتجاتنا</h1>
-                <p class="page-subtitle">عندنا اجود انواع المنتجات</p>
+                <h1 class="page-title">سلة المشتريات</h1>
                 <nav class="breadcrumb">
                     <a href="index.html">الرئيسية</a>
                     <span>›</span>
-                    <span>منتجاتنا</span>
+                    <span>سلة المشتريات</span>
                 </nav>
             </div>
         </div>
     </section>
 
-    <!-- Products Filter -->
-    <section class="products-filter">
+    <!-- Cart Section -->
+    <section class="cart-section">
         <div class="container">
-            <div class="filter-controls">
-                <div class="search-container">
-                    <input type="text" id="search-input" placeholder="ابحث عن منتج...">
-                </div>
-                <div class="filter-tabs">
-                    <button class="filter-btn active" data-category="all">كل المنتجات</button>
-                    <button class="filter-btn" data-category="fish">أسماك</button>
-                    <button class="filter-btn" data-category="shrimp">جمبري</button>
-                    <button class="filter-btn" data-category="crab">كابوريا</button>
-                    <button class="filter-btn" data-category="squid">كاليماري و سبيط</button>
-                    <button class="filter-btn" data-category="other">أخرى</button>
-                </div>
+            <div id="cart-items-container">
+                <!-- Cart items will be dynamically inserted here by JavaScript -->
+            </div>
+            <div class="cart-summary">
+                <button id="confirm-order-btn" class="btn btn-primary">Confirm Order</button>
             </div>
         </div>
     </section>
 
-    <!-- Products Grid -->
-    <section class="products-section">
-        <div class="container">
-            <div class="products-grid" id="products-grid">
-                <!-- Product cards will be dynamically inserted here by JavaScript -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Quick View Modal -->
-    <div id="quickViewModal" class="modal">
+    <!-- Order Confirmation Modal -->
+    <div id="orderModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitle">تفاصيل المنتج</h3>
-                <button class="modal-close" onclick="closeQuickView()">&times;</button>
+                <h3>تفاصيل الطلب</h3>
+                <button class="modal-close" onclick="closeOrderModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="modal-image-container">
-                    <img id="modalImage" src="" alt="Product Image" />
-                </div>
-                <div class="modal-info">
-                    <p id="modalDescription"></p>
-                    <div class="modal-price">
-                        <span id="modalPrice"></span>
+                <form id="orderForm">
+                    <div class="form-group">
+                        <label for="fullName">الاسم بالكامل</label>
+                        <input type="text" id="fullName" name="fullName" required>
                     </div>
-                    <div class="modal-features">
-                        <h4>مميزات المنتج:</h4>
-                        <ul>
-                            <li>طازج 100%</li>
-                            <li>جودة عالية</li>
-                            <li>توصيل سريع</li>
-                            <li>أسعار تنافسية</li>
-                        </ul>
+                    <div class="form-group">
+                        <label for="companyName">اسم الفندق/المطعم</label>
+                        <input type="text" id="companyName" name="companyName" required>
                     </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <a id="modalWhatsappBtn" href="#" class="btn btn-whatsapp" target="_blank">
-                    <span><i class="fa-brands fa-whatsapp"></i> اطلب الآن</span>
-                </a>
-                <button onclick="closeQuickView()" class="btn btn-outline">إغلاق</button>
+                    <div class="form-group">
+                        <label for="address">العنوان</label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">رقم الهاتف</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">البريد الإلكتروني</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">إرسال الطلب</button>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- Call to Action Section -->
-    <section class="cta">
-        <div class="container">
-            <div class="cta-content">
-                <h2 class="cta-title">مالقيتش اللي بتدور عليه؟</h2>
-                <p class="cta-text">اتصل بنا وهنساعدك تلاقي بالظبط اللي محتاجه بسهولة</p>
-                <div class="cta-buttons">
-                    <a href="https://wa.me/201143343338?text=أهلاً، أريد أستفسر عن منتج معين" 
-                       class="btn btn-whatsapp-large" target="_blank">
-                        <span><i class="fa-brands fa-whatsapp"></i> ابعتلنا</span>
-                        <div class="btn-ripple"></div>
-                    </a>
-                    <a href="contact.html" class="btn btn-outline">
-                        <span>تواصل معانا</span>
-                        <div class="btn-ripple"></div>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- ==========================================================================
        MODERN FOOTER V3
@@ -237,7 +195,7 @@
     </footer>
 
     <!-- WhatsApp Float Button -->
-    <a href="https://wa.me/201143343338?text=أهلاً، أريد الاستفسار عن منتجاتكم" 
+    <a href="https://wa.me/201143343338?text=أهلاً، أريد الاستفسار عن منتجاتكم"
        class="whatsapp-float" target="_blank" aria-label="تواصل معنا عبر الواتساب">
         <div class="whatsapp-icon-float"><i class="fa-brands fa-whatsapp"></i></div>
         <div class="whatsapp-pulse"></div>
