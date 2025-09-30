@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منتجاتنا - الفهد لتجارة وتوريد المواد الغذائية</title>
+    <meta name="description" content="تصفح مجموعتنا الواسعة من أجود أنواع الأسماك والمأكولات البحرية الطازجة - أسماك، جمبري، كابوريا، كاليماري وأكثر">
+    <meta name="keywords" content="منتجات بحرية، أسماك طازجة، جمبري، كابوريا، كاليماري، الفهد">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="منتجاتنا - الفهد لتجارة وتوريد المواد الغذائية">
+    <meta property="og:description" content="تصفح مجموعتنا الواسعة من أجود أنواع المأكولات البحرية الطازجة">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="images/about/logo.png" alt="الفهد لتجارة وتوريد المواد الغذائية" class="logo-img">
+                <span class="logo-text"> الفهد لتجارة وتوريد المواد الغذائية </span>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <a href="index.html" class="nav-link">الرئيسية</a>
+                <a href="products.html" class="nav-link active">منتجاتنا</a>
+                <a href="about.html" class="nav-link">من نحن</a>
+                <a href="contact.html" class="nav-link">اتصل بنا</a>
+            </div>
+
+            <div class="nav-actions">
+                <a href="https://wa.me/201143343338" class="nav-action-btn whatsapp-btn" target="_blank" aria-label="WhatsApp">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
+            </div>
+            
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="page-title">منتجاتنا</h1>
+                <p class="page-subtitle">عندنا اجود انواع المنتجات</p>
+                <nav class="breadcrumb">
+                    <a href="index.html">الرئيسية</a>
+                    <span>›</span>
+                    <span>منتجاتنا</span>
+                </nav>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Filter -->
+    <section class="products-filter">
+        <div class="container">
+            <div class="filter-controls">
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="ابحث عن منتج...">
+                </div>
+                <div class="filter-tabs">
+                    <button class="filter-btn active" data-category="all">كل المنتجات</button>
+                    <button class="filter-btn" data-category="fish">أسماك</button>
+                    <button class="filter-btn" data-category="shrimp">جمبري</button>
+                    <button class="filter-btn" data-category="crab">كابوريا</button>
+                    <button class="filter-btn" data-category="squid">كاليماري و سبيط</button>
+                    <button class="filter-btn" data-category="other">أخرى</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Grid -->
+    <section class="products-section">
+        <div class="container">
+            <div class="products-grid" id="products-grid">
+                <!-- Product cards will be dynamically inserted here by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick View Modal -->
+    <div id="quickViewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">تفاصيل المنتج</h3>
+                <button class="modal-close" onclick="closeQuickView()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-image-container">
+                    <img id="modalImage" src="" alt="Product Image" />
+                </div>
+                <div class="modal-info">
+                    <p id="modalDescription"></p>
+                    <div class="modal-price">
+                        <span id="modalPrice"></span>
+                    </div>
+                    <div class="modal-features">
+                        <h4>مميزات المنتج:</h4>
+                        <ul>
+                            <li>طازج 100%</li>
+                            <li>جودة عالية</li>
+                            <li>توصيل سريع</li>
+                            <li>أسعار تنافسية</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="modalWhatsappBtn" href="#" class="btn btn-whatsapp" target="_blank">
+                    <span><i class="fa-brands fa-whatsapp"></i> اطلب الآن</span>
+                </a>
+                <button onclick="closeQuickView()" class="btn btn-outline">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">مالقيتش اللي بتدور عليه؟</h2>
+                <p class="cta-text">اتصل بنا وهنساعدك تلاقي بالظبط اللي محتاجه بسهولة</p>
+                <div class="cta-buttons">
+                    <a href="https://wa.me/201143343338?text=أهلاً، أريد أستفسر عن منتج معين" 
+                       class="btn btn-whatsapp-large" target="_blank">
+                        <span><i class="fa-brands fa-whatsapp"></i> ابعتلنا</span>
+                        <div class="btn-ripple"></div>
+                    </a>
+                    <a href="contact.html" class="btn btn-outline">
+                        <span>تواصل معانا</span>
+                        <div class="btn-ripple"></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+       MODERN FOOTER V3
+       ========================================================================== -->
+    <footer class="footer-v3">
+        <div class="footer-bg">
+            <div class="footer-wave"></div>
+        </div>
+        <div class="container">
+            <div class="footer-main">
+                <!-- Brand Section -->
+                <div class="footer-column brand-section">
+                    <img src="images/about/logo.png" alt="الفهد للمأكولات البحرية" class="footer-logo">
+                    <h4 class="footer-tagline">مع الفهد.. ثقة في الجودة وراحة في التعامل.</h4>
+                    <p class="footer-description">في الفهد حريصين نوفّرلك أجود المأكولات البحرية المجمّدة، ومعانا كمان اختيارات فريش للي يحب الطعم على أصوله.. دايمًا بجودة مضمونة وخدمة تثق فيها</p>
+                </div>
+
+                <!-- Quick Links Section -->
+                <div class="footer-column links-section">
+                    <h5 class="footer-heading">روابط سريعة</h5>
+                    <ul class="footer-list">
+                        <li><a href="index.html">الرئيسية</a></li>
+                        <li><a href="products.html">منتجاتنا</a></li>
+                        <li><a href="about.html">من نحن</a></li>
+                        <li><a href="contact.html">اتصل بنا</a></li>
+                    </ul>
+                </div>
+
+                <!-- Product Categories Section -->
+                <div class="footer-column links-section">
+                    <h5 class="footer-heading">فئات المنتجات</h5>
+                    <ul class="footer-list">
+                        <li><a href="products.html#shrimp">الجمبري</a></li>
+                        <li><a href="products.html#fish">الأسماك</a></li>
+                        <li><a href="products.html#crab">الكابوريا</a></li>
+                        <li><a href="products.html#squid">السبيط</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info Section -->
+                <div class="footer-column contact-section">
+                    <h5 class="footer-heading">معلومات التواصل</h5>
+                    <ul class="footer-list contact-info">
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>طناش - الوراق - الجيزة</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-phone-alt"></i>
+                            <a href="tel:+201143343338" dir="ltr">+20 114 334 3338</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <a href="mohamed.magdy@alfahdseafood.com">mohamed.magdy@alfahdseafood.com</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-clock"></i>
+                            <span>يومياً: 24 ساعه</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="social-media">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://wa.me/201143343338" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                </div>
+                <div class="copyright-text">
+                    <p>&copy; 2024 الفهد للمأكولات البحرية. جميع الحقوق محفوظة.</p>
+                    <p class="designer-credit">❤️ Designed for Al-Fahd Seafood</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Float Button -->
+    <a href="https://wa.me/201143343338?text=أهلاً، أريد الاستفسار عن منتجاتكم" 
+       class="whatsapp-float" target="_blank" aria-label="تواصل معنا عبر الواتساب">
+        <div class="whatsapp-icon-float"><i class="fa-brands fa-whatsapp"></i></div>
+        <div class="whatsapp-pulse"></div>
+    </a>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="back-to-top" aria-label="العودة للأعلى">
+        <span><i class="fas fa-arrow-up"></i></span>
+    </button>
+
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+</body>
+</html>
