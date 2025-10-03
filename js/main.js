@@ -119,62 +119,6 @@ const products = [
  */
 
 // ==========================================================================
-// CART MANAGEMENT
-// ==========================================================================
-
-class CartManager {
-    constructor() {
-        this.cart = this.getCart();
-        this.cartCounter = document.querySelector('.cart-counter');
-        this.updateCartCounter();
-    }
-
-    getCart() {
-        return JSON.parse(localStorage.getItem('cart')) || {};
-    }
-
-    saveCart() {
-        localStorage.setItem('cart', JSON.stringify(this.cart));
-        this.updateCartCounter();
-    }
-
-    addToCart(productId) {
-        if (this.cart[productId]) {
-            this.cart[productId]++;
-        } else {
-            this.cart[productId] = 1;
-        }
-        this.saveCart();
-    }
-
-    removeProduct(productId) {
-        delete this.cart[productId];
-        this.saveCart();
-    }
-
-    clearCart() {
-        this.cart = {};
-        this.saveCart();
-    }
-
-    decreaseQuantity(productId) {
-        if (this.cart[productId] > 1) {
-            this.cart[productId]--;
-        } else {
-            delete this.cart[productId];
-        }
-        this.saveCart();
-    }
-
-    updateCartCounter() {
-        if (this.cartCounter) {
-            const totalItems = Object.values(this.cart).reduce((sum, quantity) => sum + quantity, 0);
-            this.cartCounter.textContent = totalItems;
-        }
-    }
-}
-
-// ==========================================================================
 // GLOBAL VARIABLES & CONFIGURATION
 // ==========================================================================
 
@@ -762,16 +706,9 @@ function createProductCard(product) {
             <h3 class="product-title">${product.name}</h3>
             <p class="product-description">${product.description || 'منتج طازج وعالي الجودة'}</p>
             <div class="product-card-footer">
-                <div class="cart-button-container">
-                    <button class="add-to-cart-btn" data-product-id="${product.id}">
-                        <i class="fas fa-shopping-cart"></i>
-                    </button>
-                    <div class="quantity-controls">
-                        <button class="quantity-btn decrease-btn" data-product-id="${product.id}">–</button>
-                        <span class="quantity">1</span>
-                        <button class="quantity-btn increase-btn" data-product-id="${product.id}">+</button>
-                    </div>
-                </div>
+                 <a href="${whatsappLink}" class="btn btn-whatsapp" target="_blank">
+                    <span><i class="fa-brands fa-whatsapp"></i> اطلب الآن</span>
+                </a>
             </div>
         </div>
     `;
@@ -811,24 +748,6 @@ class ProductsFilter {
         this.renderProducts(this.allProducts);
     }
 
-    updateCardUI(card) {
-        if (!card) return;
-        const productId = card.querySelector('[data-product-id]').dataset.productId;
-        const cart = window.cartManager.getCart();
-        const quantity = cart[productId];
-
-        const cartButtonContainer = card.querySelector('.cart-button-container');
-        const quantitySpan = card.querySelector('.quantity');
-
-        if (quantity) {
-            cartButtonContainer.classList.add('controls-visible');
-            if(quantitySpan) quantitySpan.textContent = quantity;
-        } else {
-            cartButtonContainer.classList.remove('controls-visible');
-            if (quantitySpan) quantitySpan.textContent = '1';
-        }
-    }
-
     setupEventListeners() {
         // Category filter buttons
         this.filterBtns.forEach(btn => {
@@ -846,26 +765,6 @@ class ProductsFilter {
                 this.filterAndRender();
             }, 300));
         }
-
-        // Cart buttons
-        this.productsGrid.addEventListener('click', (e) => {
-            const target = e.target;
-            const card = target.closest('.product-card');
-
-            if (target.closest('.add-to-cart-btn')) {
-                const productId = target.closest('.add-to-cart-btn').dataset.productId;
-                window.cartManager.addToCart(productId);
-                this.updateCardUI(card);
-            } else if (target.closest('.increase-btn')) {
-                const productId = target.closest('.increase-btn').dataset.productId;
-                window.cartManager.addToCart(productId);
-                this.updateCardUI(card);
-            } else if (target.closest('.decrease-btn')) {
-                const productId = target.closest('.decrease-btn').dataset.productId;
-                window.cartManager.decreaseQuantity(productId);
-                this.updateCardUI(card);
-            }
-        });
     }
 
     filterAndRender() {
@@ -900,155 +799,11 @@ class ProductsFilter {
             fragment.appendChild(card);
         });
         this.productsGrid.appendChild(fragment);
-
-        this.productsGrid.querySelectorAll('.product-card').forEach(card => {
-            this.updateCardUI(card);
-        });
     }
 
     updateActiveFilter(activeBtn) {
         this.filterBtns.forEach(btn => btn.classList.remove('active'));
         activeBtn.classList.add('active');
-    }
-}
-
-// ==========================================================================
-// CART PAGE MANAGEMENT
-// ==========================================================================
-
-class CartPageManager {
-    constructor(products) {
-        this.allProducts = products;
-        this.cartItemsContainer = document.getElementById('cart-items-container');
-        this.confirmOrderBtn = document.getElementById('confirm-order-btn');
-        this.init();
-    }
-
-    init() {
-        if (!this.cartItemsContainer) return;
-        this.renderCartItems();
-        this.setupEventListeners();
-    }
-
-    renderCartItems() {
-        const cart = window.cartManager.getCart();
-        this.cartItemsContainer.innerHTML = '';
-
-        if (Object.keys(cart).length === 0) {
-            this.cartItemsContainer.innerHTML = '<p class="empty-cart-message">سلة المشتريات فارغة.</p>';
-            if(this.confirmOrderBtn) this.confirmOrderBtn.style.display = 'none';
-            return;
-        }
-
-        const fragment = document.createDocumentFragment();
-        for (const productId in cart) {
-            const product = this.allProducts.find(p => p.id == productId);
-            if (product) {
-                const quantity = cart[productId];
-                const item = this.createCartItem(product, quantity);
-                fragment.appendChild(item);
-            }
-        }
-        this.cartItemsContainer.appendChild(fragment);
-    }
-
-    createCartItem(product, quantity) {
-        const item = document.createElement('div');
-        item.className = 'cart-item';
-        item.dataset.productId = product.id;
-
-        const imagePath = (product.image && product.image.fallback) ? product.image.fallback : 'images/placeholder.txt';
-
-        item.innerHTML = `
-            <div class="cart-item-image">
-                <img src="${imagePath}" alt="${product.name}" loading="lazy" onerror="this.onerror=null;this.src='images/placeholder.txt';">
-            </div>
-            <div class="cart-item-details">
-                <h3 class="cart-item-title">${product.name}</h3>
-                <div class="cart-item-quantity">
-                    <div class="quantity-controls">
-                        <button class="quantity-btn decrease-btn" data-product-id="${product.id}">–</button>
-                        <span class="quantity">${quantity}</span>
-                        <button class="quantity-btn increase-btn" data-product-id="${product.id}">+</button>
-                    </div>
-                </div>
-            </div>
-            <div class="cart-item-remove">
-                <button class="remove-item-btn" data-product-id="${product.id}">&times;</button>
-            </div>
-        `;
-        return item;
-    }
-
-    setupEventListeners() {
-        this.cartItemsContainer.addEventListener('click', (e) => {
-            const target = e.target;
-            const productId = target.closest('[data-product-id]')?.dataset.productId;
-
-            if (!productId) return;
-
-            if (target.closest('.increase-btn')) {
-                window.cartManager.addToCart(productId);
-                this.renderCartItems();
-            } else if (target.closest('.decrease-btn')) {
-                window.cartManager.decreaseQuantity(productId);
-                this.renderCartItems();
-            } else if (target.closest('.remove-item-btn')) {
-                window.cartManager.removeProduct(productId);
-                this.renderCartItems();
-            }
-        });
-
-        if(this.confirmOrderBtn) {
-            this.confirmOrderBtn.addEventListener('click', () => {
-                if (window.modalManager) {
-                    window.modalManager.openModal('orderModal');
-                }
-            });
-        }
-
-        const orderForm = document.getElementById('orderForm');
-        if (orderForm) {
-            orderForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.handleOrderSubmission(orderForm);
-            });
-        }
-    }
-
-    handleOrderSubmission(form) {
-        const formData = new FormData(form);
-        const cart = window.cartManager.getCart();
-        let message = '';
-
-        // Format ordered products
-        for (const productId in cart) {
-            const product = this.allProducts.find(p => p.id == productId);
-            if (product) {
-                const quantity = cart[productId];
-                message += `${quantity} كيلو ${product.name}\n`;
-            }
-        }
-
-        // Add client details
-        message += `\nالاسم: ${formData.get('fullName')}\n`;
-        message += `الفندق/المطعم: ${formData.get('companyName')}\n`;
-        message += `العنوان: ${formData.get('address')}\n`;
-        message += `الهاتف: ${formData.get('phone')}\n`;
-        message += `الايميل: ${formData.get('email')}\n`;
-
-        // Construct WhatsApp URL
-        const whatsappNumber = '+201127331488';
-        const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-
-        // Redirect to WhatsApp
-        window.open(whatsappURL, '_blank');
-
-        // Clear cart and close modal
-        window.cartManager.clearCart();
-        this.renderCartItems();
-        closeOrderModal();
-        form.reset();
     }
 }
 
@@ -1825,7 +1580,6 @@ class AlFahdApp {
     initializeComponents() {
         try {
             // Initialize core components
-            this.components.cart = new CartManager();
             this.components.preloader = new PreloaderManager();
             this.components.navigation = new NavigationManager();
             this.components.textAnimator = new TextAnimator();
@@ -1883,11 +1637,6 @@ class AlFahdApp {
         if (document.querySelector('.faq-item')) {
             this.components.faq = new FAQAccordion();
         }
-
-        // Cart Page Manager (Cart page)
-        if (document.getElementById('cart-items-container')) {
-            this.components.cartPageManager = new CartPageManager(products);
-        }
     }
     
     exposeGlobalComponents() {
@@ -1895,7 +1644,6 @@ class AlFahdApp {
         window.testimonialsCarousel = this.components.testimonials;
         window.modalManager = this.components.modal;
         window.faqAccordion = this.components.faq;
-        window.cartManager = this.components.cart;
         window.alFahdApp = this;
     }
 }
