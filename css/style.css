@@ -1804,6 +1804,81 @@ p {
     padding: var(--spacing-12);
 }
 
+/* New styles for product card enhancements */
+.product-title-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-2);
+}
+
+.product-title {
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+
+.add-to-cart-btn-new {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: var(--white);
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: var(--font-size-lg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
+}
+
+.add-to-cart-btn-new:hover {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    transform: scale(1.1);
+    box-shadow: var(--shadow-lg);
+}
+
+.add-to-cart-btn-new:active {
+    transform: scale(1.05);
+}
+
+.product-card {
+    position: relative; /* Needed for absolute positioning of the message */
+    overflow: visible; /* Allow message to show outside card bounds */
+}
+
+.add-to-cart-message {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translate(-50%, 10px);
+    background-color: var(--success-color);
+    color: var(--white);
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    opacity: 0;
+    visibility: hidden;
+    transition: transform var(--transition-slow), opacity var(--transition-slow), visibility 0s var(--transition-slow);
+    z-index: 10;
+    white-space: nowrap;
+}
+
+.add-to-cart-message.show {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    visibility: visible;
+    transition: transform var(--transition-slow), opacity var(--transition-slow), visibility 0s;
+}
+
 
 /* ==========================================================================
    TESTIMONIALS SECTION

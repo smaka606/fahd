@@ -759,20 +759,17 @@ function createProductCard(product) {
             </div>
         </div>
         <div class="product-info">
-            <h3 class="product-title">${product.name}</h3>
-            <p class="product-description">${product.description || 'منتج طازج وعالي الجودة'}</p>
-            <div class="product-card-footer">
-                <div class="cart-button-container">
-                    <button class="add-to-cart-btn" data-product-id="${product.id}">
-                        <i class="fas fa-shopping-cart"></i>
-                    </button>
-                    <div class="quantity-controls">
-                        <button class="quantity-btn decrease-btn" data-product-id="${product.id}">–</button>
-                        <span class="quantity">1</span>
-                        <button class="quantity-btn increase-btn" data-product-id="${product.id}">+</button>
-                    </div>
-                </div>
+            <div class="product-title-wrapper">
+                <h3 class="product-title">${product.name}</h3>
+                <button class="add-to-cart-btn-new" data-product-id="${product.id}">
+                    <i class="fas fa-cart-plus"></i>
+                </button>
             </div>
+            <p class="product-description">${product.description || 'منتج طازج وعالي الجودة'}</p>
+        </div>
+        <div class="add-to-cart-message">
+            <i class="fas fa-check-circle"></i>
+            <span>تمت الإضافة إلى السلة</span>
         </div>
     `;
 
@@ -811,24 +808,6 @@ class ProductsFilter {
         this.renderProducts(this.allProducts);
     }
 
-    updateCardUI(card) {
-        if (!card) return;
-        const productId = card.querySelector('[data-product-id]').dataset.productId;
-        const cart = window.cartManager.getCart();
-        const quantity = cart[productId];
-
-        const cartButtonContainer = card.querySelector('.cart-button-container');
-        const quantitySpan = card.querySelector('.quantity');
-
-        if (quantity) {
-            cartButtonContainer.classList.add('controls-visible');
-            if(quantitySpan) quantitySpan.textContent = quantity;
-        } else {
-            cartButtonContainer.classList.remove('controls-visible');
-            if (quantitySpan) quantitySpan.textContent = '1';
-        }
-    }
-
     setupEventListeners() {
         // Category filter buttons
         this.filterBtns.forEach(btn => {
@@ -852,18 +831,18 @@ class ProductsFilter {
             const target = e.target;
             const card = target.closest('.product-card');
 
-            if (target.closest('.add-to-cart-btn')) {
-                const productId = target.closest('.add-to-cart-btn').dataset.productId;
+            if (target.closest('.add-to-cart-btn-new')) {
+                const button = target.closest('.add-to-cart-btn-new');
+                const productId = button.dataset.productId;
                 window.cartManager.addToCart(productId);
-                this.updateCardUI(card);
-            } else if (target.closest('.increase-btn')) {
-                const productId = target.closest('.increase-btn').dataset.productId;
-                window.cartManager.addToCart(productId);
-                this.updateCardUI(card);
-            } else if (target.closest('.decrease-btn')) {
-                const productId = target.closest('.decrease-btn').dataset.productId;
-                window.cartManager.decreaseQuantity(productId);
-                this.updateCardUI(card);
+
+                const message = card.querySelector('.add-to-cart-message');
+                if (message) {
+                    message.classList.add('show');
+                    setTimeout(() => {
+                        message.classList.remove('show');
+                    }, 2000);
+                }
             }
         });
     }
@@ -900,10 +879,6 @@ class ProductsFilter {
             fragment.appendChild(card);
         });
         this.productsGrid.appendChild(fragment);
-
-        this.productsGrid.querySelectorAll('.product-card').forEach(card => {
-            this.updateCardUI(card);
-        });
     }
 
     updateActiveFilter(activeBtn) {
