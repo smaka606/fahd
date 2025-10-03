@@ -892,8 +892,9 @@ class ProductsFilter {
 // ==========================================================================
 
 class CartPageManager {
-    constructor(products) {
+    constructor(products, cartManager) {
         this.allProducts = products;
+        this.cartManager = cartManager;
         this.cartItemsContainer = document.getElementById('cart-items-container');
         this.confirmOrderBtn = document.getElementById('confirm-order-btn');
         this.init();
@@ -906,12 +907,12 @@ class CartPageManager {
     }
 
     renderCartItems() {
-        const cart = window.cartManager.getCart();
+        const cart = this.cartManager.getCart();
         this.cartItemsContainer.innerHTML = '';
 
         if (Object.keys(cart).length === 0) {
             this.cartItemsContainer.innerHTML = '<p class="empty-cart-message">سلة المشتريات فارغة.</p>';
-            if(this.confirmOrderBtn) this.confirmOrderBtn.style.display = 'none';
+            if (this.confirmOrderBtn) this.confirmOrderBtn.style.display = 'none';
             return;
         }
 
@@ -925,6 +926,7 @@ class CartPageManager {
             }
         }
         this.cartItemsContainer.appendChild(fragment);
+        if (this.confirmOrderBtn) this.confirmOrderBtn.style.display = 'block';
     }
 
     createCartItem(product, quantity) {
@@ -963,18 +965,18 @@ class CartPageManager {
             if (!productId) return;
 
             if (target.closest('.increase-btn')) {
-                window.cartManager.addToCart(productId);
+                this.cartManager.addToCart(productId);
                 this.renderCartItems();
             } else if (target.closest('.decrease-btn')) {
-                window.cartManager.decreaseQuantity(productId);
+                this.cartManager.decreaseQuantity(productId);
                 this.renderCartItems();
             } else if (target.closest('.remove-item-btn')) {
-                window.cartManager.removeProduct(productId);
+                this.cartManager.removeProduct(productId);
                 this.renderCartItems();
             }
         });
 
-        if(this.confirmOrderBtn) {
+        if (this.confirmOrderBtn) {
             this.confirmOrderBtn.addEventListener('click', () => {
                 if (window.modalManager) {
                     window.modalManager.openModal('orderModal');
@@ -993,7 +995,7 @@ class CartPageManager {
 
     handleOrderSubmission(form) {
         const formData = new FormData(form);
-        const cart = window.cartManager.getCart();
+        const cart = this.cartManager.getCart();
         let message = '';
 
         // Format ordered products
@@ -1020,7 +1022,7 @@ class CartPageManager {
         window.open(whatsappURL, '_blank');
 
         // Clear cart and close modal
-        window.cartManager.clearCart();
+        this.cartManager.clearCart();
         this.renderCartItems();
         closeOrderModal();
         form.reset();
@@ -1861,7 +1863,7 @@ class AlFahdApp {
 
         // Cart Page Manager (Cart page)
         if (document.getElementById('cart-items-container')) {
-            this.components.cartPageManager = new CartPageManager(products);
+            this.components.cartPageManager = new CartPageManager(products, this.components.cart);
         }
     }
     
