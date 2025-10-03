@@ -917,8 +917,9 @@ class ProductsFilter {
 // ==========================================================================
 
 class CartPageManager {
-    constructor(products) {
+    constructor(products, cartManager) {
         this.allProducts = products;
+        this.cartManager = cartManager;
         this.cartItemsContainer = document.getElementById('cart-items-container');
         this.confirmOrderBtn = document.getElementById('confirm-order-btn');
         this.init();
@@ -931,18 +932,20 @@ class CartPageManager {
     }
 
     renderCartItems() {
-        const cart = window.cartManager.getCart();
+        const cart = this.cartManager.getCart();
         this.cartItemsContainer.innerHTML = '';
 
         if (Object.keys(cart).length === 0) {
             this.cartItemsContainer.innerHTML = '<p class="empty-cart-message">سلة المشتريات فارغة.</p>';
-            if(this.confirmOrderBtn) this.confirmOrderBtn.style.display = 'none';
+            if (this.confirmOrderBtn) this.confirmOrderBtn.style.display = 'none';
             return;
         }
 
+        if (this.confirmOrderBtn) this.confirmOrderBtn.style.display = 'block';
+
         const fragment = document.createDocumentFragment();
         for (const productId in cart) {
-            const product = this.allProducts.find(p => p.id == productId);
+            const product = this.allProducts.find(p => String(p.id) === productId);
             if (product) {
                 const quantity = cart[productId];
                 const item = this.createCartItem(product, quantity);
@@ -1886,7 +1889,7 @@ class AlFahdApp {
 
         // Cart Page Manager (Cart page)
         if (document.getElementById('cart-items-container')) {
-            this.components.cartPageManager = new CartPageManager(products);
+            this.components.cartPageManager = new CartPageManager(products, this.components.cart);
         }
     }
     

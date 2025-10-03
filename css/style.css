@@ -1453,12 +1453,26 @@ p {
 
 .cart-item-details {
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.cart-item-quantity .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    /* Overrides for cart page layout */
+    position: static;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
 }
 
 .cart-item-title {
     font-size: var(--font-size-lg);
     font-weight: 600;
-    margin-bottom: var(--spacing-4);
+    margin-bottom: 0; /* Reset margin for flex layout */
 }
 
 .cart-item-remove .remove-item-btn {
