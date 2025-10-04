@@ -422,6 +422,19 @@ p {
     pointer-events: none;
 }
 
+.btn-shine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 100%;
+    background: white;
+    opacity: 0.3;
+    transform: skewX(-20deg);
+    filter: blur(10px);
+    pointer-events: none;
+}
+
 .btn:active .btn-ripple {
     width: 300px;
     height: 300px;
@@ -864,9 +877,7 @@ p {
 
 .title-line {
     display: block;
-    animation: slide-up 1s ease-out forwards;
-    opacity: 0;
-    transform: translateY(50px);
+    /* Animation is now handled by GSAP */
 }
 
 .title-line:nth-child(1) {
@@ -896,6 +907,14 @@ p {
     }
 }
 
+/* Set initial states for GSAP animations to prevent FOUC */
+.hero-title .title-line,
+.hero-description,
+.hero-buttons .btn,
+.hero-image-3d {
+    opacity: 0;
+}
+
 .hero-description {
     font-size: var(--font-size-lg);
     color: rgba(255, 255, 255, 0.9);
@@ -904,8 +923,7 @@ p {
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
-    animation: fade-in 1s ease-out 0.8s forwards;
-    opacity: 0;
+    /* Animation handled by GSAP */
 }
 
 
@@ -920,8 +938,7 @@ p {
     flex-direction: column;
     gap: var(--spacing-4);
     align-items: center;
-    animation: fade-in 1s ease-out 1s forwards;
-    opacity: 0;
+    /* Animation handled by GSAP */
 }
 
 @media (min-width: 768px) {
@@ -942,16 +959,7 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: slide-in-right 1s ease-out 0.5s forwards;
-    opacity: 0;
-    transform: translateX(50px);
-}
-
-@keyframes slide-in-right {
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    /* The animation is now handled by GSAP in animations.js */
 }
 
 .fish-container {
@@ -1029,6 +1037,19 @@ p {
 
 .hero-img:hover {
     transform: rotateY(0deg) rotateX(0deg) scale(1.05);
+}
+
+.hero-image-shadow {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 30px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    filter: blur(20px);
+    z-index: -1;
 }
 
 .image-frame {
@@ -2678,8 +2699,20 @@ p {
 }
 
 .form-group {
+    position: relative; /* Needed for the focus line */
     display: flex;
     flex-direction: column;
+}
+
+.focus-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary-color);
+    transform: scaleX(0);
+    transform-origin: left;
 }
 
 .form-group label {
@@ -3310,6 +3343,24 @@ p {
     z-index: var(--z-fixed);
     transition: all var(--transition-base);
     animation: float 3s ease-in-out infinite;
+}
+
+.whatsapp-tooltip {
+    position: absolute;
+    right: 110%;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--gray-800);
+    color: var(--white);
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--border-radius-md);
+    white-space: nowrap;
+    font-size: var(--font-size-sm);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s, visibility 0.3s;
 }
 
 .whatsapp-float:hover {
@@ -4009,6 +4060,19 @@ textarea:focus-visible {
 .modal-content {
     transform: translateZ(0);
     backface-visibility: hidden;
+}
+
+.feature-card,
+.product-card,
+.value-card,
+.team-card {
+    will-change: transform, box-shadow;
+}
+
+.hero-title .title-line,
+.hero-description,
+.hero-buttons .btn {
+    will-change: transform, opacity;
 }
 
 /* Optimize images */

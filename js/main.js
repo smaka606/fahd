@@ -333,7 +333,13 @@ class PreloaderManager {
     }
     
     hide() {
-        if (!this.preloader) return;
+        if (!this.preloader) {
+            // If no preloader, start animations right away
+            if (window.startGsapAnimations) {
+                window.startGsapAnimations();
+            }
+            return;
+        }
         
         const elapsedTime = Date.now() - this.startTime;
         const remainingTime = Math.max(0, this.minDisplayTime - elapsedTime);
@@ -341,43 +347,18 @@ class PreloaderManager {
         setTimeout(() => {
             this.preloader.classList.add('fade-out');
             
-            setTimeout(() => {
+            // Listen for the transition to end
+            this.preloader.addEventListener('transitionend', () => {
                 this.preloader.style.display = 'none';
                 document.body.classList.remove('no-scroll');
-                this.triggerPageAnimations();
-            }, 500);
-        }, remainingTime);
-    }
-    
-    triggerPageAnimations() {
-        // Trigger hero animations
-        const heroElements = document.querySelectorAll('.hero-text > *, .hero-visual');
-        heroElements.forEach((element, index) => {
-            addClassWithAnimation(element, 'animate-in', index * 100);
-        });
-        
-        // Initialize scroll-based animations
-        this.initScrollAnimations();
-    }
-    
-    initScrollAnimations() {
-        const animateElements = document.querySelectorAll('.animate-on-scroll');
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animated');
-                    observer.unobserve(entry.target);
+
+                // Start all GSAP animations now that the page is visible
+                if (window.startGsapAnimations) {
+                    window.startGsapAnimations();
                 }
-            });
-        }, {
-            threshold: 0.1,
-            rootMargin: '50px'
-        });
-        
-        animateElements.forEach(element => {
-            observer.observe(element);
-        });
+            }, { once: true });
+
+        }, remainingTime);
     }
 }
 
@@ -448,30 +429,32 @@ class NavigationManager {
         STATE.isMobileMenuOpen = !STATE.isMobileMenuOpen;
         
         this.navToggle.classList.toggle('active');
-        this.navMenu.classList.toggle('active');
         
         // Prevent body scroll when menu is open
         document.body.style.overflow = STATE.isMobileMenuOpen ? 'hidden' : '';
         
-        // Animate menu items
-        if (STATE.isMobileMenuOpen) {
-            this.animateMenuItems();
+        // Trigger GSAP animation
+        if (window.toggleMainMenuAnimation) {
+            window.toggleMainMenuAnimation(STATE.isMobileMenuOpen);
+        } else {
+            // Fallback for when animations.js hasn't loaded
+            this.navMenu.classList.toggle('active');
         }
     }
     
     closeMobileMenu() {
+        if (!STATE.isMobileMenuOpen) return;
         STATE.isMobileMenuOpen = false;
         this.navToggle.classList.remove('active');
-        this.navMenu.classList.remove('active');
         document.body.style.overflow = '';
-    }
-    
-    animateMenuItems() {
-        const menuItems = this.navMenu.querySelectorAll('.nav-link');
-        menuItems.forEach((item, index) => {
-            item.style.animationDelay = `${index * 0.1}s`;
-            item.classList.add('animate-slide-in');
-        });
+
+        // Trigger GSAP animation to close
+        if (window.toggleMainMenuAnimation) {
+            window.toggleMainMenuAnimation(false);
+        } else {
+            // Fallback for when animations.js hasn't loaded
+            this.navMenu.classList.remove('active');
+        }
     }
     
     handleNavLinkClicks() {
@@ -744,12 +727,17 @@ function createProductCard(product) {
     const whatsappMessage = encodeURIComponent(`أهلاً، أريد طلب منتج: ${product.name}`);
     const whatsappLink = `https://wa.me/201143343338?text=${whatsappMessage}`;
 
-    // Use placeholder if product image is not available
-    const imagePath = (product.image && product.image.fallback) ? product.image.fallback : `images/placeholder.txt`;
+    // Use webp if available, otherwise fallback to jpg. Use a real placeholder image.
+    const imagePath = (product.image && product.image.webp) ? product.image.webp : 'images/about/product1.jpg';
+    const fallbackImagePath = (product.image && product.image.fallback) ? product.image.fallback : 'images/about/product1.jpg';
+    const placeholderPath = 'images/about/product1.jpg'; // A valid image placeholder
 
     card.innerHTML = `
         <div class="product-image">
-            <img src="${imagePath}" alt="${product.name}" loading="lazy" onerror="this.onerror=null;this.src='images/placeholder.txt';">
+            <picture>
+                <source srcset="${imagePath}" type="image/webp">
+                <img src="${fallbackImagePath}" alt="${product.name}" loading="lazy" onerror="this.onerror=null;this.src='${placeholderPath}';">
+            </picture>
             <div class="product-overlay">
                 <div class="product-actions">
                     <button class="product-action preview-btn">
@@ -811,7 +799,7 @@ class ProductsFilter {
         this.renderProducts(this.allProducts);
     }
 
-    updateCardUI(card) {
+    updateCardUI(card, animate = false) {
         if (!card) return;
         const productId = card.querySelector('[data-product-id]').dataset.productId;
         const cart = window.cartManager.getCart();
@@ -820,12 +808,40 @@ class ProductsFilter {
         const cartButtonContainer = card.querySelector('.cart-button-container');
         const quantitySpan = card.querySelector('.quantity');
 
-        if (quantity) {
+        const isVisible = cartButtonContainer.classList.contains('controls-visible');
+        const shouldBeVisible = !!quantity;
+
+        // If state doesn't need to change, just update quantity text and exit.
+        if (isVisible === shouldBeVisible) {
+            if (shouldBeVisible && quantitySpan) {
+                quantitySpan.textContent = quantity;
+            }
+            return;
+        }
+
+        // A state change is needed. Animate it with Flip.
+        // 1. Get the state BEFORE the DOM change.
+        const state = (animate && window.Flip) ? window.Flip.getState(cartButtonContainer.children, { props: "opacity,transform,scale" }) : null;
+
+        // 2. Make the DOM change (toggle class and update text).
+        if (shouldBeVisible) {
             cartButtonContainer.classList.add('controls-visible');
-            if(quantitySpan) quantitySpan.textContent = quantity;
+            if (quantitySpan) quantitySpan.textContent = quantity;
         } else {
             cartButtonContainer.classList.remove('controls-visible');
             if (quantitySpan) quantitySpan.textContent = '1';
+        }
+
+        // 3. Animate from the old state to the new one.
+        if (state && window.Flip) {
+            window.Flip.from(state, {
+                duration: 0.5,
+                ease: "power2.inOut",
+                scale: true,
+                absolute: true, // Use absolute positioning to prevent layout shifts
+                onEnter: elements => gsap.fromTo(elements, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.3 }),
+                onLeave: elements => gsap.to(elements, { opacity: 0, scale: 0.8, duration: 0.3 })
+            });
         }
     }
 
@@ -851,19 +867,20 @@ class ProductsFilter {
         this.productsGrid.addEventListener('click', (e) => {
             const target = e.target;
             const card = target.closest('.product-card');
+            if (!card) return;
 
             if (target.closest('.add-to-cart-btn')) {
                 const productId = target.closest('.add-to-cart-btn').dataset.productId;
                 window.cartManager.addToCart(productId);
-                this.updateCardUI(card);
+                this.updateCardUI(card, true); // Animate the button change
             } else if (target.closest('.increase-btn')) {
                 const productId = target.closest('.increase-btn').dataset.productId;
                 window.cartManager.addToCart(productId);
-                this.updateCardUI(card);
+                this.updateCardUI(card, true); // Animate the button change
             } else if (target.closest('.decrease-btn')) {
                 const productId = target.closest('.decrease-btn').dataset.productId;
                 window.cartManager.decreaseQuantity(productId);
-                this.updateCardUI(card);
+                this.updateCardUI(card, true); // Animate the button change
             }
         });
     }
@@ -887,10 +904,22 @@ class ProductsFilter {
     }
 
     renderProducts(products) {
+        // Get the state of the grid *before* changing it.
+        const state = window.Flip ? window.Flip.getState(this.productsGrid.children, { props: "opacity, filter" }) : null;
+
         this.productsGrid.innerHTML = ''; // Clear existing products
 
         if (products.length === 0) {
             this.productsGrid.innerHTML = '<p class="no-products-found">لا توجد منتجات تطابق بحثك.</p>';
+            // Animate out the old items if they existed
+            if (state && window.Flip) {
+                 window.Flip.from(state, {
+                    duration: 0.5,
+                    ease: "power2.inOut",
+                    scale: true,
+                    onLeave: elements => gsap.to(elements, {opacity: 0, scale: 0.8, duration: 0.5})
+                });
+            }
             return;
         }
 
@@ -900,6 +929,19 @@ class ProductsFilter {
             fragment.appendChild(card);
         });
         this.productsGrid.appendChild(fragment);
+
+        // Animate from the old state to the new one.
+        if (state && window.Flip) {
+            window.Flip.from(state, {
+                duration: 0.7,
+                scale: true,
+                ease: "power2.inOut",
+                stagger: 0.08,
+                absolute: true,
+                onEnter: elements => gsap.fromTo(elements, {opacity: 0, scale: 0.8}, {opacity: 1, scale: 1, duration: 0.5}),
+                onLeave: elements => gsap.to(elements, {opacity: 0, scale: 0.8, duration: 0.5})
+            });
+        }
 
         this.productsGrid.querySelectorAll('.product-card').forEach(card => {
             this.updateCardUI(card);
@@ -1221,9 +1263,13 @@ function closeOrderModal() {
 }
 
 function closeSuccessModal() {
-    const modal = document.getElementById('successModal');
-    if (modal && window.modalManager) {
-        window.modalManager.closeModal(modal);
+    if (window.animateSuccessModal) {
+        window.animateSuccessModal(false);
+    } else {
+        const modal = document.getElementById('successModal');
+        if (modal && window.modalManager) {
+            window.modalManager.closeModal(modal);
+        }
     }
 }
 
@@ -1389,8 +1435,11 @@ class FormManager {
             group.classList.remove('success', 'error');
         });
         
-        // Show success modal
-        if (window.modalManager) {
+        // Show success modal with GSAP animation
+        if (window.animateSuccessModal) {
+            window.animateSuccessModal(true);
+        } else if (window.modalManager) {
+            // Fallback
             window.modalManager.openModal('successModal');
         }
     }
@@ -1744,66 +1793,6 @@ class AccessibilityManager {
 }
 
 // ==========================================================================
-// TEXT ANIMATIONS
-// ==========================================================================
-
-class TextAnimator {
-    constructor() {
-        this.typingElements = document.querySelectorAll('.hero-title, .section-title');
-        this.fadeElements = document.querySelectorAll('p, .feature-card, .product-card, .testimonial-card, .vm-card, .value-card, .team-card, .contact-card, .form-content, .info-item, .faq-item');
-        this.init();
-    }
-
-    init() {
-        this.initTypingAnimations();
-        this.initFadeAnimations();
-    }
-
-    initTypingAnimations() {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    this.type(entry.target);
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.5 });
-
-        this.typingElements.forEach(el => observer.observe(el));
-    }
-
-    type(element) {
-        const text = element.textContent.trim();
-        element.textContent = '';
-        element.style.visibility = 'visible';
-
-        let i = 0;
-        const typing = setInterval(() => {
-            if (i < text.length) {
-                element.textContent += text.charAt(i);
-                i++;
-            } else {
-                clearInterval(typing);
-            }
-        }, 50);
-    }
-
-    initFadeAnimations() {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('fade-in-up-visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1 });
-
-        this.fadeElements.forEach(el => observer.observe(el));
-    }
-}
-
-
-// ==========================================================================
 // MAIN APPLICATION INITIALIZATION
 // ==========================================================================
 
@@ -1828,7 +1817,6 @@ class AlFahdApp {
             this.components.cart = new CartManager();
             this.components.preloader = new PreloaderManager();
             this.components.navigation = new NavigationManager();
-            this.components.textAnimator = new TextAnimator();
             this.components.modal = new ModalManager();
             this.components.form = new FormManager();
             this.components.scrollToTop = new ScrollToTop();
